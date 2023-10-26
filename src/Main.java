@@ -11,6 +11,17 @@
  */
 public class Main {
     public static void main(String[] args) {
-
+        RoundTable roundTable = new RoundTable();
+        System.out.println(roundTable.getPhilosophers());
+        System.out.println("!!! The feast has begun  !!! ");
+        roundTable.startMealOrThinking();
+        for (Philosopher ph : roundTable.getPhilosophers()) {
+            try {
+                ph.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        System.out.println("!!! The meal is finished !!! ");
     }
 }
