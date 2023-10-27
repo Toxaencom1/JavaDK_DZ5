@@ -17,7 +17,14 @@ public class RoundTable {
     private void initialize() {
         PhilosophersNames[] values = PhilosophersNames.values();
         for (int i = 0; i < PHILOSOPHERS_AMT; i++) {
-            philosophers.add(new Philosopher(values[random.nextInt(values.length)].getName()));
+            while (true) {
+                Philosopher philosopher = new Philosopher(values[random.nextInt(values.length)].getName());
+                if (philosophers.contains(philosopher)) {
+                    continue;
+                }
+                philosophers.add(philosopher);
+                break;
+            }
         }
         Fork fork = new Fork();
         forks.add(fork);

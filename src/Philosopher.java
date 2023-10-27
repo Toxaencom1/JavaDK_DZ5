@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.Random;
 
 public class Philosopher extends Thread {
@@ -6,16 +7,16 @@ public class Philosopher extends Thread {
     private final String philosopherName;
     private Fork leftFork;
     private Fork rightFork;
-    private final PhilosopherState ps;
+    private final PhilosopherState philosopherState;
 
     public Philosopher(String philosopherName) {
         this.philosopherName = philosopherName;
-        ps = new PhilosopherState();
+        philosopherState = new PhilosopherState();
     }
 
     @Override
     public void run() {
-        while (!ps.isFinish()) {
+        while (!philosopherState.isFinish()) {
             try {
                 mealOrThink();
             } catch (InterruptedException e) {
@@ -25,16 +26,17 @@ public class Philosopher extends Thread {
     }
 
     private void mealOrThink() throws InterruptedException {
-        if (leftFork.tryLock()) {
+        if (leftForkUp()) {
 //            System.out.println(philosopherName + " I have a left fork");
-            if (rightFork.tryLock()) {
+            if (rightForkUp()) {
 //                System.out.println(philosopherName + " I have a right fork");
                 eat();
-                leftFork.unlock();
-                rightFork.unlock();
-                reasoning();
+                leftForkDown();
+                rightForkDown();
+                if (!philosopherState.isFinish())
+                    reasoning();
             } else {
-                leftFork.unlock();
+                leftForkDown();
                 reasoning();
             }
         } else {
@@ -42,26 +44,36 @@ public class Philosopher extends Thread {
         }
     }
 
+    private boolean rightForkUp() {
+        return rightFork.tryLock();
+    }
+
+    private boolean leftForkUp() {
+        return leftFork.tryLock();
+    }
+
+    private void rightForkDown() {
+        rightFork.unlock();
+    }
+
+    private void leftForkDown() {
+        leftFork.unlock();
+    }
+
     private void reasoning() throws InterruptedException {
-        long noRForkTimeout = random.nextInt(1, BOUND) * 1000L;
-        System.out.println(philosopherName + " thought about something "
-                + noRForkTimeout + " ms");
-        sleep(noRForkTimeout);
+        long timeout = random.nextInt(1, BOUND) * 1000L;
+        System.out.println(philosopherName + philosopherState.reasoning()
+                + timeout + " ms");
+        sleep(timeout);
     }
 
     private void eat() throws InterruptedException {
         long eatTimeout = random.nextInt(1, BOUND) * 1000L * 2;
-        ps.decrementCount();
-        System.out.println("    " + philosopherName + " thoughts:  I have a forks, i am going to EAT!!! "
+        System.out.println("    " + philosopherName + " thoughts: I have a forks, i am going to eat!!! "
                 + eatTimeout + " ms "
-                + "(" + ps.eatSpaghettiToFull + " more needed)");
+                + "(" + (philosopherState.eatSpaghettiToFull - 1) + " more needed)");
         sleep(eatTimeout);
-        if (ps.getEatSpaghettiToFull() != 0) {
-            System.out.println(philosopherName + " thoughts:  I ate some, time to think!!! ");
-        } else {
-            System.out.println("        " + philosopherName + " thoughts: I finished my meal, I am full");
-            ps.setFinish(true);
-        }
+        System.out.println("        " + philosopherName + philosopherState.eat());
     }
 
     public void setLeftFork(Fork leftFork) {
@@ -70,6 +82,19 @@ public class Philosopher extends Thread {
 
     public void setRightFork(Fork rightFork) {
         this.rightFork = rightFork;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Philosopher that = (Philosopher) o;
+        return Objects.equals(philosopherName, that.philosopherName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(philosopherName);
     }
 
     @Override

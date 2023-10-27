@@ -6,15 +6,17 @@ public class PhilosopherState {
         return finish;
     }
 
-    public void setFinish(boolean finish) {
-        this.finish = finish;
-    }
-
-    public void decrementCount() {
+    public String eat() {
         eatSpaghettiToFull--;
+        if (eatSpaghettiToFull != 0) {
+            return " thoughts:  I ate some, time to think!!! ";
+        } else {
+            this.finish = true;
+            return " thoughts: I finished my meal, I am full";
+        }
     }
 
-    public int getEatSpaghettiToFull() {
-        return eatSpaghettiToFull;
+    public String reasoning() {
+        return " thought about something ";
     }
 }
