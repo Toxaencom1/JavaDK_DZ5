@@ -1,3 +1,7 @@
+/**
+ * The PhilosophersNames enum represents a list of famous philosophers' names. Each
+ * philosopher's name is associated with a unique identifier.
+ */
 public enum PhilosophersNames {
     PLATO("Plato"),
     ARISTOTLE("Aristotle"),
@@ -17,10 +21,20 @@ public enum PhilosophersNames {
 
     private final String name;
 
+    /**
+     * Creates a new PhilosophersNames enum constant with the specified philosopher's name.
+     *
+     * @param name The name of the philosopher.
+     */
     PhilosophersNames(String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the name associated with the philosopher.
+     *
+     * @return The name of the philosopher.
+     */
     public String getName() {
         return name;
     }
